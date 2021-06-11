@@ -78,4 +78,9 @@ class CartExtension extends Struct
     {
         return \in_array($id, $this->blockedPromotionIds, true);
     }
+
+    public function hasData(): bool
+    {
+        return !empty($this->blockedPromotionIds) || !empty($this->addedCodes);
+    }
 }

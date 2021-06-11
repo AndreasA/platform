@@ -82,6 +82,11 @@ class PromotionCollector implements CartDataCollectorInterface
         // if we are in recalculation,
         // we must not re-add any promotions. just leave it as it is.
         if ($behavior->hasPermission(self::SKIP_PROMOTION)) {
+            // If there is no data stored on the extension, it should be removed so empty carts can be deleted.
+            if (!$cartExtension->hasData()) {
+                $original->removeExtension(CartExtension::KEY);
+            }
+
             return;
         }
 
@@ -145,6 +150,11 @@ class PromotionCollector implements CartDataCollectorInterface
             $data->set(PromotionProcessor::DATA_KEY, new LineItemCollection($discountLineItems));
         } else {
             $data->remove(PromotionProcessor::DATA_KEY);
+        }
+
+        // If there is no data stored on the extension, it should be removed so empty carts can be deleted.
+        if (!$cartExtension->hasData()) {
+            $original->removeExtension(CartExtension::KEY);
         }
     }
 

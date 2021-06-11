@@ -139,7 +139,7 @@ class PromotionExtensionCodesTest extends TestCase
         $this->cartService->remove($cart, $discountId, $this->context);
 
         /** @var CartExtension $extension */
-        $extension = $cart->getExtension(CartExtension::KEY);
+        $extension = $cart->getExtension(CartExtension::KEY) ?? new CartExtension();
 
         static::assertCount(0, $extension->getCodes());
     }
@@ -213,11 +213,14 @@ class PromotionExtensionCodesTest extends TestCase
         $this->cartService->remove($cart, $discountId, $this->context);
 
         /** @var CartExtension $extension */
-        $extension = $cart->getExtension(CartExtension::KEY);
+        $extension = $cart->getExtension(CartExtension::KEY) ?? new CartExtension();
 
         static::assertCount(0, $extension->getCodes());
 
         $this->addPromotionCode($promotionCode, $cart, $this->cartService, $this->context);
+
+        // Retrieve cart extension again as it might have been newly created due to cart processing.
+        $extension = $cart->getExtension(CartExtension::KEY) ?? new CartExtension();
 
         static::assertCount(1, $extension->getCodes());
     }
@@ -371,7 +374,7 @@ class PromotionExtensionCodesTest extends TestCase
         $this->cartService->remove($cart, $discountId, $this->context);
 
         /** @var CartExtension $extension */
-        $extension = $cart->getExtension(CartExtension::KEY);
+        $extension = $cart->getExtension(CartExtension::KEY) ?? new CartExtension();
 
         static::assertCount(0, $extension->getCodes());
     }

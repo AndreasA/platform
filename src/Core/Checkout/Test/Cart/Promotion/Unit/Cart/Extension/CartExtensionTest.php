@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Unit\Cart\Extension;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 
 class CartExtensionTest extends TestCase
 {
@@ -77,5 +78,41 @@ class CartExtensionTest extends TestCase
         $extension->removeCode('c123');
 
         static::assertEquals(['c456'], $extension->getCodes());
+    }
+
+    public function testHasNoData(): void
+    {
+        $extension = new CartExtension();
+
+        static::assertFalse($extension->hasData());
+    }
+
+    public function testHasDataAfterAddCode(): void
+    {
+        $extension = new CartExtension();
+        $extension->addCode('c123');
+
+        static::assertTrue($extension->hasData());
+    }
+
+    public function testHasDataAfterBlockPromotion(): void
+    {
+        $extension = new CartExtension();
+        $extension->blockPromotion('abc');
+
+        static::assertTrue($extension->hasData());
+    }
+
+    public function testHasNoDataAfterAllCodesAreRemoved(): void
+    {
+        $extension = new CartExtension();
+
+        $extension->addCode('c123');
+
+        static::assertTrue($extension->hasData());
+
+        $extension->removeCode('c123');
+
+        static::assertFalse($extension->hasData());
     }
 }

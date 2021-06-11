@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class CartPersisterTest extends TestCase
@@ -55,7 +56,7 @@ class CartPersisterTest extends TestCase
         static::assertEquals(new Cart('shopware', 'existing'), $cart);
     }
 
-    public function testEmptyCartShouldnBeSaved(): void
+    public function testEmptyCartShouldNotBeSaved(): void
     {
         $connection = $this->createMock(Connection::class);
         $eventDispatcher = new EventDispatcher();
@@ -68,9 +69,47 @@ class CartPersisterTest extends TestCase
 
         $persister = new CartPersister($connection, $eventDispatcher);
 
-        $calc = new Cart('shopware', 'existing');
+        $cart = new Cart('shopware', 'existing');
 
-        $persister->save($calc, Generator::createSalesChannelContext());
+        $persister->save($cart, Generator::createSalesChannelContext());
+    }
+
+    public function testEmptyCartWithExtensionIsSaved(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $eventDispatcher = new EventDispatcher();
+
+        // Cart should be not be deleted.
+        $connection->expects(static::never())->method('delete');
+
+        // Cart should be inserted or updated.
+        $connection->expects(static::once())->method('executeUpdate');
+
+        $persister = new CartPersister($connection, $eventDispatcher);
+
+        $cart = new Cart('shopware', 'existing');
+        $cart->addExtension('custom', new ArrayStruct());
+
+        $persister->save($cart, Generator::createSalesChannelContext());
+    }
+
+    public function testEmptyCartWithCustomerCommentIsSaved(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $eventDispatcher = new EventDispatcher();
+
+        // Cart should be not be deleted.
+        $connection->expects(static::never())->method('delete');
+
+        // Cart should be inserted or updated.
+        $connection->expects(static::once())->method('executeUpdate');
+
+        $persister = new CartPersister($connection, $eventDispatcher);
+
+        $cart = new Cart('shopware', 'existing');
+        $cart->setCustomerComment('Foo');
+
+        $persister->save($cart, Generator::createSalesChannelContext());
     }
 
     public function testSaveWithItems(): void
